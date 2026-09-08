@@ -1,0 +1,57 @@
+{
+    "status": "OPTIMAL",
+    "recommendation": "WAIT 30D",
+    "selected_window": "30D",
+    "forecast_freight_usd_per_ton": 34.13,
+    "total_cargo_tons": 210000.0,
+    "total_landed_cost_usd": 32772300.0,
+    "average_landed_cost_usd_per_ton": 156.06,
+    "cargo_allocation": [
+        {
+            "cargo": "Coking Coal",
+            "origin": "Australia",
+            "destination": "Paradip",
+            "quantity_tons": 50000.0,
+            "freight_usd_per_ton": 34.13,
+            "landed_cost_usd_per_ton": 185.13,
+            "total_cost_usd": 9256500.0
+        },
+        {
+            "cargo": "Coking Coal",
+            "origin": "Australia",
+            "destination": "Visakhapatnam",
+            "quantity_tons": 50000.0,
+            "freight_usd_per_ton": 34.13,
+            "landed_cost_usd_per_ton": 186.13,
+            "total_cost_usd": 9306500.0
+        },
+        {
+            "cargo": "Coking Coal",
+            "origin": "Australia",
+            "destination": "Dhamra",
+            "quantity_tons": 50000.0,
+            "freight_usd_per_ton": 34.13,
+            "landed_cost_usd_per_ton": 185.63,
+            "total_cost_usd": 9281500.0
+        },
+        {
+            "cargo": "Limestone",
+            "origin": "Oman",
+            "destination": "Paradip",
+            "quantity_tons": 30000.0,
+            "freight_usd_per_ton": 34.13,
+            "landed_cost_usd_per_ton": 81.63,
+            "total_cost_usd": 2448900.0
+        },
+        {
+            "cargo": "Limestone",
+            "origin": "Oman",
+            "destination": "Visakhapatnam",
+            "quantity_tons": 30000.0,
+            "freight_usd_per_ton": 34.13,
+            "landed_cost_usd_per_ton": 82.63,
+            "total_cost_usd": 2478900.0
+        }
+    ],
+    "optimization_method": "Mixed Integer Linear Programming (MILP)"
+}

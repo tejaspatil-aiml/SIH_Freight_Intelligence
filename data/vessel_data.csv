@@ -1,0 +1,7 @@
+Vessel_ID,Vessel_Type,Capacity_Tons,Daily_Charter_USD,Speed_Knots,Origin,Destination,Available_Days
+VESSEL_A,Capesize,80000,28000,13,Australia,Paradip,30
+VESSEL_B,Capesize,85000,30000,13,Australia,Visakhapatnam,30
+VESSEL_C,Capesize,75000,26000,12.5,Australia,Dhamra,30
+VESSEL_D,Panamax,65000,22000,13,Australia,Paradip,30
+VESSEL_E,Panamax,60000,21000,12.5,Australia,Visakhapatnam,30
+VESSEL_F,Panamax,55000,20000,12.5,Australia,Dhamra,30

@@ -1,0 +1,38 @@
+{
+    "forecast_date": "2026-08-31",
+    "current_freight_rate": 35.65,
+    "unit": "USD/ton",
+    "horizons": {
+        "7D": {
+            "forecast_date": "2026-09-07",
+            "P10": 33.45,
+            "P50": 34.23,
+            "P90": 35.15,
+            "direction": "DOWN"
+        },
+        "15D": {
+            "forecast_date": "2026-09-15",
+            "P10": 33.74,
+            "P50": 34.04,
+            "P90": 35.05,
+            "direction": "DOWN"
+        },
+        "30D": {
+            "forecast_date": "2026-09-30",
+            "P10": 33.89,
+            "P50": 34.23,
+            "P90": 35.15,
+            "direction": "DOWN"
+        }
+    },
+    "metadata": {
+        "source": "historical_freight_data.csv",
+        "latest_observation_used": "2026-08-31",
+        "model_type": "LightGBM Quantile Regression",
+        "quantiles": [
+            "P10",
+            "P50",
+            "P90"
+        ]
+    }
+}

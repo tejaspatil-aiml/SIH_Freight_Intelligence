@@ -1,0 +1,110 @@
+{
+  "status": "OPTIMAL",
+  "recommendation": "WAIT 15D",
+  "selected_procurement_window": "15D",
+  "current_freight_usd_per_ton": 35.65,
+  "base_freight_usd_per_ton": 34.04,
+  "forecast_freight_usd_per_ton": 34.04,
+  "scenario_freight_usd_per_ton": 34.04,
+  "freight_shock_pct": 0.0,
+  "port_delay_days": 0.0,
+  "vessel_availability_pct": 100.0,
+  "total_cargo_tons": 150000.0,
+  "total_charter_cost_usd": 1890000.0,
+  "average_landed_cost_usd_per_ton": 198.14,
+  "total_landed_cost_usd": 29721000.0,
+  "cost_difference_vs_now_usd": -241500.0,
+  "cost_difference_pct_vs_now": -0.81,
+  "vessel_count": 3,
+  "vessel_allocations": [
+    {
+      "vessel_id": "VESSEL_D",
+      "vessel_type": "Panamax",
+      "origin": "Australia",
+      "destination": "Paradip",
+      "cargo_tons": 50000.0,
+      "capacity_tons": 65000.0,
+      "utilization_pct": 76.92,
+      "landed_cost_usd_per_ton": 185.04
+    },
+    {
+      "vessel_id": "VESSEL_E",
+      "vessel_type": "Panamax",
+      "origin": "Australia",
+      "destination": "Visakhapatnam",
+      "cargo_tons": 50000.0,
+      "capacity_tons": 60000.0,
+      "utilization_pct": 83.33,
+      "landed_cost_usd_per_ton": 186.04
+    },
+    {
+      "vessel_id": "VESSEL_F",
+      "vessel_type": "Panamax",
+      "origin": "Australia",
+      "destination": "Dhamra",
+      "cargo_tons": 50000.0,
+      "capacity_tons": 55000.0,
+      "utilization_pct": 90.91,
+      "landed_cost_usd_per_ton": 185.54
+    }
+  ],
+  "procurement_window_comparison": [
+    {
+      "window": "NOW",
+      "base_freight_usd_per_ton": 35.65,
+      "scenario_freight_usd_per_ton": 35.65,
+      "average_landed_cost_usd_per_ton": 199.75,
+      "total_landed_cost_usd": 29962500.0,
+      "vessels_selected": 3,
+      "charter_cost_usd": 1890000.0,
+      "status": "Optimal",
+      "feasible": true
+    },
+    {
+      "window": "7D",
+      "base_freight_usd_per_ton": 34.23,
+      "scenario_freight_usd_per_ton": 34.23,
+      "average_landed_cost_usd_per_ton": 198.33,
+      "total_landed_cost_usd": 29749500.0,
+      "vessels_selected": 3,
+      "charter_cost_usd": 1890000.0,
+      "status": "Optimal",
+      "feasible": true
+    },
+    {
+      "window": "15D",
+      "base_freight_usd_per_ton": 34.04,
+      "scenario_freight_usd_per_ton": 34.04,
+      "average_landed_cost_usd_per_ton": 198.14,
+      "total_landed_cost_usd": 29721000.0,
+      "vessels_selected": 3,
+      "charter_cost_usd": 1890000.0,
+      "status": "Optimal",
+      "feasible": true
+    },
+    {
+      "window": "30D",
+      "base_freight_usd_per_ton": 34.23,
+      "scenario_freight_usd_per_ton": 34.23,
+      "average_landed_cost_usd_per_ton": 198.33,
+      "total_landed_cost_usd": 29749500.0,
+      "vessels_selected": 3,
+      "charter_cost_usd": 1890000.0,
+      "status": "Optimal",
+      "feasible": true
+    }
+  ],
+  "optimization_method": "Mixed Integer Linear Programming (MILP)",
+  "forecast_type": "P50 scenario",
+  "model_scope": "Australia to East Coast India Coking Coal",
+  "data_status": "Prototype / simulated vessel inputs",
+  "notes": [
+    "NOW uses current freight.",
+    "7D, 15D and 30D use their corresponding P50 forecasts.",
+    "Freight shock is applied consistently to every window.",
+    "The recommendation is the lowest total landed-cost feasible window.",
+    "Port-delay cost uses a prototype linear demurrage assumption.",
+    "Charter rates and vessel availability are prototype inputs.",
+    "Forecast P50 is a model quantile and not a guaranteed confidence interval."
+  ]
+}

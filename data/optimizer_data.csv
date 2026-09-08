@@ -1,0 +1,6 @@
+Cargo,Origin,Destination,Demand_Tons,FOB_USD_per_Ton,Port_Cost_USD_per_Ton,Demurrage_USD_per_Ton,Available_Days
+Coking Coal,Australia,Paradip,50000,145,4,2,30
+Coking Coal,Australia,Visakhapatnam,50000,145,5,2,30
+Coking Coal,Australia,Dhamra,50000,145,4.5,2,30
+Limestone,Oman,Paradip,30000,42,4,1.5,30
+Limestone,Oman,Visakhapatnam,30000,42,5,1.5,30
