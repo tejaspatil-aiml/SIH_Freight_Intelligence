@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from datetime import date
 
 import streamlit as st
 
@@ -30,12 +31,14 @@ OPTIMIZATION_FILE = BASE_DIR / "outputs" / "vessel_optimization_output.json"
 # =========================================================
 
 try:
+
     from optimizer.vessel_optimizer import run_vessel_optimizer
 
     OPTIMIZER_AVAILABLE = True
     OPTIMIZER_ERROR = None
 
 except Exception as error:
+
     OPTIMIZER_AVAILABLE = False
     OPTIMIZER_ERROR = str(error)
 
@@ -45,15 +48,26 @@ except Exception as error:
 # =========================================================
 
 def load_json(file_path):
+
     if not file_path.exists():
         return None
 
     try:
-        with open(file_path, "r", encoding="utf-8") as file:
+
+        with open(
+            file_path,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
             return json.load(file)
 
     except Exception as error:
-        st.error(f"Unable to read {file_path.name}: {error}")
+
+        st.error(
+            f"Unable to read {file_path.name}: {error}"
+        )
+
         return None
 
 
@@ -62,36 +76,78 @@ def load_json(file_path):
 # =========================================================
 
 def get_value(data, *keys, default=0):
+
+    """
+    Returns the first available key from a dictionary.
+
+    This keeps the dashboard compatible with slightly
+    different optimizer output field names.
+    """
+
     if not isinstance(data, dict):
         return default
 
     for key in keys:
+
         if key in data and data[key] is not None:
+
             return data[key]
 
     return default
 
 
 def get_float(data, *keys, default=0):
+
     try:
-        return float(get_value(data, *keys, default=default))
+
+        return float(
+            get_value(
+                data,
+                *keys,
+                default=default
+            )
+        )
+
     except (TypeError, ValueError):
+
         return float(default)
 
 
 def get_int(data, *keys, default=0):
+
     try:
-        return int(float(get_value(data, *keys, default=default)))
+
+        return int(
+            float(
+                get_value(
+                    data,
+                    *keys,
+                    default=default
+                )
+            )
+        )
+
     except (TypeError, ValueError):
+
         return int(default)
 
 
 # =========================================================
-# LOAD OUTPUTS
+# LOAD FORECAST
 # =========================================================
 
-forecast = load_json(FORECAST_FILE)
-default_optimization = load_json(OPTIMIZATION_FILE)
+forecast = load_json(
+    FORECAST_FILE
+)
+
+
+# =========================================================
+# LOAD DEFAULT OPTIMIZATION
+# =========================================================
+
+default_optimization = load_json(
+    OPTIMIZATION_FILE
+)
 
 
 # =========================================================
@@ -99,9 +155,14 @@ default_optimization = load_json(OPTIMIZATION_FILE)
 # =========================================================
 
 if "optimization_result" not in st.session_state:
-    st.session_state.optimization_result = default_optimization
+
+    st.session_state.optimization_result = (
+        default_optimization
+    )
+
 
 if "scenario_result" not in st.session_state:
+
     st.session_state.scenario_result = None
 
 
@@ -109,7 +170,9 @@ if "scenario_result" not in st.session_state:
 # HEADER
 # =========================================================
 
-st.title("🚢 Freight Intelligence Command Center")
+st.title(
+    "🚢 Freight Intelligence Command Center"
+)
 
 st.caption(
     "AI-powered Freight Forecasting & Vessel Chartering "
@@ -124,10 +187,12 @@ st.divider()
 # =========================================================
 
 if forecast is None:
+
     st.error(
         "Forecast output not found. "
         "Run the forecasting engine first."
     )
+
     st.stop()
 
 
@@ -135,38 +200,46 @@ if forecast is None:
 # CURRENT MARKET INTELLIGENCE
 # =========================================================
 
-st.subheader("📊 Current Market Intelligence")
-
-# Supports the corrected forecast engine output:
-# "current_freight_rate"
-current_freight = get_float(
-    forecast,
-    "current_freight_rate",
-    "current_freight_usd_per_ton",
-    "current_freight"
+st.subheader(
+    "📊 Current Market Intelligence"
 )
 
-forecast_date = forecast.get("forecast_date", "N/A")
+
+current_freight = get_float(
+    forecast,
+    "current_freight_usd_per_ton"
+)
+
+
+forecast_date = date.today().strftime("%d %b %Y")
+
 
 col1, col2, col3 = st.columns(3)
 
+
 with col1:
+
     st.metric(
         "Current Freight",
         f"${current_freight:.2f}/ton"
     )
 
+
 with col2:
+
     st.metric(
         "Forecast Date",
         forecast_date
     )
 
+
 with col3:
+
     st.metric(
         "Forecast Horizons",
         "7D • 15D • 30D"
     )
+
 
 st.divider()
 
@@ -175,11 +248,19 @@ st.divider()
 # FORECAST SECTION
 # =========================================================
 
-st.subheader("🔮 Probabilistic Freight Forecast")
+st.subheader(
+    "🔮 Probabilistic Freight Forecast"
+)
 
-horizons = forecast.get("horizons", {})
+
+horizons = forecast.get(
+    "horizons",
+    {}
+)
+
 
 forecast_columns = st.columns(3)
+
 
 for column, horizon_name, title in zip(
     forecast_columns,
@@ -189,13 +270,32 @@ for column, horizon_name, title in zip(
 
     with column:
 
-        data = horizons.get(horizon_name, {})
+        data = horizons.get(
+            horizon_name,
+            {}
+        )
 
-        st.markdown(f"### {title}")
+        st.markdown(
+            f"### {title}"
+        )
 
-        p50 = get_float(data, "P50", "p50")
-        p10 = get_float(data, "P10", "p10")
-        p90 = get_float(data, "P90", "p90")
+        p50 = get_float(
+            data,
+            "P50",
+            "p50"
+        )
+
+        p10 = get_float(
+            data,
+            "P10",
+            "p10"
+        )
+
+        p90 = get_float(
+            data,
+            "P90",
+            "p90"
+        )
 
         direction = str(
             get_value(
@@ -206,21 +306,40 @@ for column, horizon_name, title in zip(
             )
         ).upper()
 
+
         st.metric(
             "P50 Forecast",
             f"${p50:.2f}/ton",
             delta=f"{p50 - current_freight:+.2f}"
         )
 
-        st.write(f"**P10:** ${p10:.2f}/ton")
-        st.write(f"**P90:** ${p90:.2f}/ton")
+
+        st.write(
+            f"**P10:** ${p10:.2f}/ton"
+        )
+
+        st.write(
+            f"**P90:** ${p90:.2f}/ton"
+        )
+
 
         if direction == "UP":
-            st.warning("📈 Expected Direction: UP")
+
+            st.warning(
+                "📈 Expected Direction: UP"
+            )
+
         elif direction == "DOWN":
-            st.success("📉 Expected Direction: DOWN")
+
+            st.success(
+                "📉 Expected Direction: DOWN"
+            )
+
         else:
-            st.info("➡️ Expected Direction: FLAT")
+
+            st.info(
+                "➡️ Expected Direction: FLAT"
+            )
 
 
 st.divider()
@@ -230,11 +349,13 @@ st.divider()
 # DECISION CONTROL CENTER
 # =========================================================
 
-st.subheader("🎯 Decision Control Center")
+st.subheader(
+    "🎯 Decision Control Center"
+)
 
 st.caption(
-    "Run the MILP optimizer under different operational "
-    "and market conditions."
+    "Run the live MILP optimizer under different "
+    "operational and market conditions."
 )
 
 
@@ -244,9 +365,12 @@ st.caption(
 
 control1, control2 = st.columns(2)
 
+
 with control1:
 
-    st.markdown("### 📦 Cargo Requirement")
+    st.markdown(
+        "### 📦 Cargo Requirement"
+    )
 
     cargo_demand = st.number_input(
         "Cargo Demand (tons)",
@@ -256,7 +380,10 @@ with control1:
         step=10000
     )
 
-    st.markdown("### 📈 Freight Market Shock")
+
+    st.markdown(
+        "### 📈 Freight Market Shock"
+    )
 
     freight_shock = st.slider(
         "Freight Shock (%)",
@@ -269,7 +396,9 @@ with control1:
 
 with control2:
 
-    st.markdown("### ⏱️ Port Delay")
+    st.markdown(
+        "### ⏱️ Port Delay"
+    )
 
     port_delay = st.slider(
         "Additional Port Delay (days)",
@@ -279,7 +408,10 @@ with control2:
         step=1
     )
 
-    st.markdown("### ⚓ Vessel Availability")
+
+    st.markdown(
+        "### ⚓ Vessel Availability"
+    )
 
     vessel_availability = st.slider(
         "Available Fleet Capacity (%)",
@@ -291,6 +423,7 @@ with control2:
 
 
 st.markdown("")
+
 
 run_decision = st.button(
     "🚀 RUN LIVE MILP DECISION",
@@ -307,8 +440,13 @@ if run_decision:
 
     if not OPTIMIZER_AVAILABLE:
 
-        st.error("MILP optimizer could not be imported.")
-        st.code(OPTIMIZER_ERROR)
+        st.error(
+            "MILP optimizer could not be imported."
+        )
+
+        st.code(
+            OPTIMIZER_ERROR
+        )
 
     else:
 
@@ -319,36 +457,62 @@ if run_decision:
             ):
 
                 result = run_vessel_optimizer(
-                    cargo_demand=float(cargo_demand),
-                    freight_shock_pct=float(freight_shock),
-                    port_delay_days=float(port_delay),
+
+                    cargo_demand=float(
+                        cargo_demand
+                    ),
+
+                    freight_shock_pct=float(
+                        freight_shock
+                    ),
+
+                    port_delay_days=float(
+                        port_delay
+                    ),
+
                     vessel_availability_pct=float(
                         vessel_availability
                     )
                 )
 
-            st.session_state.optimization_result = result
-            st.session_state.scenario_result = result
+
+            st.session_state.optimization_result = (
+                result
+            )
+
+            st.session_state.scenario_result = (
+                result
+            )
+
 
             st.success(
                 "✅ Decision successfully generated "
                 "by the MILP optimizer."
             )
 
+
         except Exception as error:
 
-            st.error(f"❌ Optimization failed: {error}")
+            st.error(
+                f"❌ Optimization failed: {error}"
+            )
 
 
 # =========================================================
 # CURRENT RESULT
 # =========================================================
 
-optimization = st.session_state.optimization_result
+optimization = (
+    st.session_state.optimization_result
+)
+
 
 if optimization is None:
 
-    st.warning("Run the optimizer to generate a decision.")
+    st.warning(
+        "Run the optimizer to generate a decision."
+    )
+
     st.stop()
 
 
@@ -364,6 +528,7 @@ recommendation = str(
     )
 )
 
+
 selected_window = str(
     get_value(
         optimization,
@@ -373,11 +538,13 @@ selected_window = str(
     )
 )
 
+
 selected_freight = get_float(
     optimization,
     "forecast_freight_usd_per_ton",
     "selected_freight_usd_per_ton"
 )
+
 
 base_selected_freight = get_float(
     optimization,
@@ -385,11 +552,13 @@ base_selected_freight = get_float(
     default=selected_freight
 )
 
+
 result_shock = get_float(
     optimization,
     "freight_shock_pct",
     default=0
 )
+
 
 result_delay = get_float(
     optimization,
@@ -397,11 +566,13 @@ result_delay = get_float(
     default=0
 )
 
+
 result_availability = get_float(
     optimization,
     "vessel_availability_pct",
     default=100
 )
+
 
 total_cargo = get_float(
     optimization,
@@ -409,11 +580,13 @@ total_cargo = get_float(
     "cargo_demand"
 )
 
+
 vessel_count = get_int(
     optimization,
     "vessel_count",
     default=0
 )
+
 
 charter_cost = get_float(
     optimization,
@@ -421,42 +594,18 @@ charter_cost = get_float(
     "charter_cost_usd"
 )
 
+
 average_landed = get_float(
     optimization,
     "average_landed_cost_usd_per_ton",
     "average_landed_cost"
 )
 
+
 total_landed = get_float(
     optimization,
     "total_landed_cost_usd",
     "total_landed_cost"
-)
-
-
-# =========================================================
-# PROCUREMENT COMPARISON DATA
-# =========================================================
-
-comparison_data = optimization.get("procurement_window_comparison", [])
-
-now_data = (
-    comparison_data.get("NOW", {})
-    if isinstance(comparison_data, dict)
-    else {}
-)
-
-now_total_landed = get_float(
-    now_data,
-    "total_landed_cost_usd",
-    "total_landed_cost",
-    "Total_Landed_Cost",
-    "total_cost",
-    default=0
-)
-
-modeled_advantage_vs_now = (
-    now_total_landed - total_landed
 )
 
 
@@ -467,24 +616,30 @@ st.divider()
 # RECOMMENDATION
 # =========================================================
 
-st.subheader("⚓ Vessel Chartering Recommendation")
+st.subheader(
+    "⚓ Vessel Chartering Recommendation"
+)
+
 
 if "BOOK" in recommendation.upper():
 
     st.success(
-        f"🟢 **OPTIMIZER RECOMMENDATION: {recommendation}**"
+        f"🟢 **OPTIMIZER RECOMMENDATION: "
+        f"{recommendation}**"
     )
 
 elif "WAIT" in recommendation.upper():
 
     st.warning(
-        f"🟡 **OPTIMIZER RECOMMENDATION: {recommendation}**"
+        f"🟡 **OPTIMIZER RECOMMENDATION: "
+        f"{recommendation}**"
     )
 
 else:
 
     st.info(
-        f"🔵 **OPTIMIZER RECOMMENDATION: {recommendation}**"
+        f"🔵 **OPTIMIZER RECOMMENDATION: "
+        f"{recommendation}**"
     )
 
 
@@ -494,22 +649,33 @@ else:
 
 col1, col2, col3, col4 = st.columns(4)
 
+
 with col1:
-    st.metric("Selected Window", selected_window)
+
+    st.metric(
+        "Selected Window",
+        selected_window
+    )
+
 
 with col2:
+
     st.metric(
         "Scenario Freight",
         f"${selected_freight:.2f}/ton"
     )
 
+
 with col3:
+
     st.metric(
         "Cargo Volume",
         f"{total_cargo:,.0f} tons"
     )
 
+
 with col4:
+
     st.metric(
         "Vessels Selected",
         vessel_count
@@ -520,23 +686,32 @@ with col4:
 # SCENARIO CONDITIONS
 # =========================================================
 
-st.markdown("### 🧪 Active Scenario Conditions")
+st.markdown(
+    "### 🧪 Active Scenario Conditions"
+)
+
 
 col1, col2, col3 = st.columns(3)
 
+
 with col1:
+
     st.metric(
         "Freight Shock",
         f"{result_shock:+.0f}%"
     )
 
+
 with col2:
+
     st.metric(
         "Port Delay",
         f"{result_delay:.0f} days"
     )
 
+
 with col3:
+
     st.metric(
         "Fleet Availability",
         f"{result_availability:.0f}%"
@@ -547,23 +722,32 @@ with col3:
 # LANDED COST
 # =========================================================
 
-st.markdown("### 💰 Landed Cost Analysis")
+st.markdown(
+    "### 💰 Landed Cost Analysis"
+)
+
 
 col1, col2, col3 = st.columns(3)
 
+
 with col1:
+
     st.metric(
         "Total Charter Cost",
         f"${charter_cost:,.0f}"
     )
 
+
 with col2:
+
     st.metric(
         "Average Landed Cost",
         f"${average_landed:.2f}/ton"
     )
 
+
 with col3:
+
     st.metric(
         "Total Landed Cost",
         f"${total_landed:,.0f}"
@@ -571,73 +755,19 @@ with col3:
 
 
 # =========================================================
-# PROCUREMENT WINDOW COMPARISON
-# =========================================================
-
-st.markdown("### 📅 Procurement Window Comparison")
-
-if isinstance(comparison_data, list) and comparison_data:
-
-    rows = []
-
-    for row in comparison_data:
-
-        if not isinstance(row, dict):
-            continue
-
-        window = str(get_value(row, "window", "Window", default="N/A"))
-
-        freight = get_float(
-            row,
-            "freight_usd_per_ton",
-            "forecast_freight_usd_per_ton",
-            "base_freight_usd_per_ton",
-            "freight",
-            default=0
-        )
-
-        landed = get_float(
-            row,
-            "average_landed_cost_usd_per_ton",
-            "average_landed_cost",
-            "landed_cost_usd_per_ton",
-            "landed_cost",
-            default=0
-        )
-
-        total = get_float(
-            row,
-            "total_landed_cost_usd",
-            "total_landed_cost",
-            "Total_Landed_Cost",
-            "total_cost",
-            default=0
-        )
-
-        rows.append({
-            "Window": window,
-            "Freight ($/t)": f"${freight:.2f}",
-            "Landed Cost ($/t)": f"${landed:.2f}",
-            "Total Landed Cost": f"${total:,.0f}"
-        })
-
-    if rows:
-        st.table(rows)
-
-else:
-
-    st.info(
-        "Procurement comparison is unavailable in the saved optimizer output."
-    )
-
-
-# =========================================================
 # VESSEL ALLOCATION
 # =========================================================
 
-st.markdown("### 🚢 Recommended Vessel Allocation")
+st.markdown(
+    "### 🚢 Recommended Vessel Allocation"
+)
 
-allocations = optimization.get("vessel_allocations", [])
+
+allocations = optimization.get(
+    "vessel_allocations",
+    []
+)
+
 
 if not allocations:
 
@@ -649,6 +779,10 @@ else:
 
     for vessel in allocations:
 
+        # -------------------------------------------------
+        # SAFE FIELD EXTRACTION
+        # -------------------------------------------------
+
         vessel_id = str(
             get_value(
                 vessel,
@@ -658,6 +792,7 @@ else:
                 default="UNKNOWN"
             )
         )
+
 
         vessel_type = str(
             get_value(
@@ -669,6 +804,7 @@ else:
             )
         )
 
+
         origin = str(
             get_value(
                 vessel,
@@ -677,6 +813,7 @@ else:
                 default="Unknown"
             )
         )
+
 
         destination = str(
             get_value(
@@ -687,6 +824,9 @@ else:
             )
         )
 
+
+        # IMPORTANT:
+        # Supports both quantity_tons AND quantity
         quantity_tons = get_float(
             vessel,
             "quantity_tons",
@@ -696,6 +836,7 @@ else:
             default=0
         )
 
+
         capacity_tons = get_float(
             vessel,
             "capacity_tons",
@@ -703,6 +844,7 @@ else:
             "capacity",
             default=0
         )
+
 
         utilization_percent = get_float(
             vessel,
@@ -716,6 +858,7 @@ else:
             )
         )
 
+
         landed_cost_per_ton = get_float(
             vessel,
             "landed_cost_usd_per_ton",
@@ -724,33 +867,72 @@ else:
             default=0
         )
 
+
         with st.container():
 
             st.markdown(
-                f"#### 🚢 {vessel_id} — {vessel_type}"
+                f"#### 🚢 {vessel_id} — "
+                f"{vessel_type}"
             )
+
 
             col1, col2, col3, col4, col5 = st.columns(5)
 
+
             with col1:
-                st.write("**Route**")
-                st.write(f"{origin} → {destination}")
+
+                st.write(
+                    "**Route**"
+                )
+
+                st.write(
+                    f"{origin} → {destination}"
+                )
+
 
             with col2:
-                st.write("**Cargo**")
-                st.write(f"{quantity_tons:,.0f} tons")
+
+                st.write(
+                    "**Cargo**"
+                )
+
+                st.write(
+                    f"{quantity_tons:,.0f} tons"
+                )
+
 
             with col3:
-                st.write("**Capacity**")
-                st.write(f"{capacity_tons:,.0f} tons")
+
+                st.write(
+                    "**Capacity**"
+                )
+
+                st.write(
+                    f"{capacity_tons:,.0f} tons"
+                )
+
 
             with col4:
-                st.write("**Utilization**")
-                st.write(f"{utilization_percent:.2f}%")
+
+                st.write(
+                    "**Utilization**"
+                )
+
+                st.write(
+                    f"{utilization_percent:.2f}%"
+                )
+
 
             with col5:
-                st.write("**Landed Cost**")
-                st.write(f"${landed_cost_per_ton:.2f}/ton")
+
+                st.write(
+                    "**Landed Cost**"
+                )
+
+                st.write(
+                    f"${landed_cost_per_ton:.2f}/ton"
+                )
+
 
             st.divider()
 
@@ -759,85 +941,88 @@ else:
 # DECISION EXPLANATION
 # =========================================================
 
-st.subheader("💡 Why This Decision?")
-
-st.caption(
-    "The optimizer does not choose a window from freight rate alone. "
-    "It compares complete modeled landed cost, including cargo cost, "
-    "freight, chartering and operational delay assumptions."
+st.subheader(
+    "💡 Why This Decision?"
 )
+
+
+freight_difference = (
+    current_freight
+    -
+    selected_freight
+)
+
 
 if "WAIT" in recommendation.upper():
 
-    if modeled_advantage_vs_now > 0:
+    if freight_difference > 0:
 
         st.success(
             f"### 🟢 {recommendation} — "
-            f"the selected window has a lower modeled total landed "
-            f"cost than booking NOW."
+            f"forecast freight is lower than today's rate."
         )
 
     else:
 
         st.info(
             f"### 🔵 {recommendation} — "
-            f"the optimizer selected the lowest feasible "
-            f"landed-cost window under the active scenario."
+            f"the optimizer found a lower overall landed "
+            f"cost in the selected future window."
         )
 
 elif "BOOK" in recommendation.upper():
 
     st.warning(
         f"### 🟠 {recommendation} — "
-        f"booking NOW minimizes the modeled total landed cost."
+        f"booking now minimizes the modeled landed cost."
     )
 
 else:
 
-    st.info(f"### 🔵 {recommendation}")
+    st.info(
+        f"### 🔵 {recommendation}"
+    )
 
 
 col1, col2, col3 = st.columns(3)
 
+
 with col1:
+
     st.metric(
         "Current Freight",
         f"${current_freight:.2f}/ton"
     )
 
+
 with col2:
+
     st.metric(
-        "Selected Freight",
+        "Optimized Freight",
         f"${selected_freight:.2f}/ton",
-        delta=f"{selected_freight - current_freight:+.2f}"
+        delta=(
+            f"{selected_freight - current_freight:+.2f}"
+        )
     )
+
 
 with col3:
 
-    if modeled_advantage_vs_now > 0:
+    potential_difference = (
+        freight_difference
+        *
+        total_cargo
+    )
 
-        st.metric(
-            "Modeled Cost Advantage vs NOW",
-            f"${modeled_advantage_vs_now:,.0f}"
-        )
 
-    elif modeled_advantage_vs_now < 0:
-
-        st.metric(
-            "Additional Cost vs NOW",
-            f"${abs(modeled_advantage_vs_now):,.0f}"
-        )
-
-    else:
-
-        st.metric(
-            "Cost Difference vs NOW",
-            "$0"
-        )
+    st.metric(
+        "Freight Cost Difference",
+        f"${potential_difference:,.0f}"
+    )
 
 
 # =========================================================
-# TOTAL COST ADVANTAGE
+# TOTAL COST SAVING
 # =========================================================
 
 difference_vs_now = get_float(
@@ -847,12 +1032,13 @@ difference_vs_now = get_float(
     default=0
 )
 
+
 if difference_vs_now != 0:
 
     if difference_vs_now < 0:
 
         st.success(
-            f"💰 **Estimated Optimization Advantage vs NOW:** "
+            f"💰 **Modeled saving vs NOW:** "
             f"${abs(difference_vs_now):,.0f}"
         )
 
@@ -875,10 +1061,11 @@ if (
 ):
 
     st.info(
-        f"**Scenario reasoning:** The optimizer evaluated a "
+        f"**Scenario reasoning:** "
+        f"The optimizer evaluated a "
         f"{result_shock:+.0f}% freight shock, "
-        f"{result_delay:.0f}-day additional port delay, and "
-        f"{result_availability:.0f}% available fleet capacity. "
+        f"{result_delay:.0f}-day additional port delay, "
+        f"and {result_availability:.0f}% available fleet capacity. "
         f"The resulting decision is **{recommendation}** "
         f"for the {selected_window} procurement window."
     )
@@ -888,21 +1075,47 @@ if (
 # DECISION LOGIC
 # =========================================================
 
-with st.expander("🧠 View Decision Logic"):
+with st.expander(
+    "🧠 View Decision Logic"
+):
 
     st.write(
-        "The system combines probabilistic freight forecasting "
-        "with a Mixed Integer Linear Programming optimizer."
+        "The system combines probabilistic freight "
+        "forecasting with a Mixed Integer Linear "
+        "Programming optimizer."
     )
 
-    st.write("1. Forecast future freight using P10/P50/P90.")
-    st.write("2. Apply market shock assumptions.")
-    st.write("3. Add operational delay costs.")
-    st.write("4. Restrict available vessel capacity.")
-    st.write("5. Evaluate NOW, 7D, 15D and 30D procurement windows.")
-    st.write("6. Allocate cargo to compatible vessels.")
-    st.write("7. Minimize total landed cost.")
-    st.write("8. Return an actionable Book/Wait decision.")
+    st.write(
+        "1. Forecast future freight using P10/P50/P90."
+    )
+
+    st.write(
+        "2. Apply market shock assumptions."
+    )
+
+    st.write(
+        "3. Add operational delay costs."
+    )
+
+    st.write(
+        "4. Restrict available vessel capacity."
+    )
+
+    st.write(
+        "5. Evaluate NOW, 7D, 15D and 30D procurement windows."
+    )
+
+    st.write(
+        "6. Allocate cargo to compatible vessels."
+    )
+
+    st.write(
+        "7. Minimize total landed cost."
+    )
+
+    st.write(
+        "8. Return an actionable Book/Wait decision."
+    )
 
 
 st.divider()
@@ -912,21 +1125,44 @@ st.divider()
 # DECISION INTELLIGENCE PIPELINE
 # =========================================================
 
-st.subheader("🧠 Decision Intelligence Pipeline")
+st.subheader(
+    "🧠 Decision Intelligence Pipeline"
+)
+
 
 col1, col2, col3, col4 = st.columns(4)
 
+
 with col1:
-    st.info("**1. DATA**\n\nMarket • Fuel • Coal • Port")
+
+    st.info(
+        "**1. DATA**\n\n"
+        "Market • Fuel • Coal • Port"
+    )
+
 
 with col2:
-    st.info("**2. FORECAST**\n\nLightGBM • P10/P50/P90")
+
+    st.info(
+        "**2. FORECAST**\n\n"
+        "LightGBM • P10/P50/P90"
+    )
+
 
 with col3:
-    st.info("**3. OPTIMIZE**\n\nMILP • Vessel Allocation")
+
+    st.info(
+        "**3. OPTIMIZE**\n\n"
+        "MILP • Vessel Allocation"
+    )
+
 
 with col4:
-    st.info("**4. DECIDE**\n\nBook • Wait • Compare")
+
+    st.info(
+        "**4. DECIDE**\n\n"
+        "Book • Wait • Compare"
+    )
 
 
 st.divider()
@@ -936,23 +1172,32 @@ st.divider()
 # INTELLIGENCE LAYER
 # =========================================================
 
-st.subheader("🤖 Intelligence Layer")
+st.subheader(
+    "🤖 Intelligence Layer"
+)
+
 
 col1, col2, col3 = st.columns(3)
 
+
 with col1:
+
     st.info(
         "**Forecasting Model**\n\n"
         "LightGBM Quantile Models"
     )
 
+
 with col2:
+
     st.info(
         "**Forecast Type**\n\n"
         "P10 / P50 / P90"
     )
 
+
 with col3:
+
     st.info(
         "**Optimization Engine**\n\n"
         "Mixed Integer Linear Programming"
@@ -966,22 +1211,41 @@ st.divider()
 # SYSTEM STATUS
 # =========================================================
 
-st.subheader("🟢 System Status")
+st.subheader(
+    "🟢 System Status"
+)
+
 
 col1, col2, col3 = st.columns(3)
 
+
 with col1:
-    st.success("Forecast Engine: ONLINE")
+
+    st.success(
+        "Forecast Engine: ONLINE"
+    )
+
 
 with col2:
 
     if OPTIMIZER_AVAILABLE:
-        st.success("MILP Optimizer: ONLINE")
+
+        st.success(
+            "MILP Optimizer: ONLINE"
+        )
+
     else:
-        st.error("MILP Optimizer: ERROR")
+
+        st.error(
+            "MILP Optimizer: ERROR"
+        )
+
 
 with col3:
-    st.success("Decision Dashboard: ONLINE")
+
+    st.success(
+        "Decision Dashboard: ONLINE"
+    )
 
 
 # =========================================================
@@ -989,10 +1253,11 @@ with col3:
 # =========================================================
 
 st.caption(
-    "Prototype note: vessel, charter and operational inputs are "
-    "prototype/simulated inputs for demonstration. P10/P50/P90 "
-    "are forecast quantiles and are not guaranteed confidence "
-    "intervals. Port-delay cost uses a prototype linear delay-cost "
-    "assumption. Production deployment requires validated commercial "
-    "charter rates, port constraints, contracts and operational data."
+    "Prototype note: vessel, charter and operational "
+    "inputs are prototype/simulated inputs for demonstration. "
+    "P10/P50/P90 are forecast quantiles and are not guaranteed "
+    "confidence intervals. Port-delay cost uses a prototype "
+    "linear delay-cost assumption. Production deployment "
+    "requires validated commercial charter rates, port "
+    "constraints, contracts and operational data."
 )
