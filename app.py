@@ -207,7 +207,7 @@ st.subheader(
 
 current_freight = get_float(
     forecast,
-    "current_freight_usd_per_ton"
+    "current_freight_rate"
 )
 
 
